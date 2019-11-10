@@ -1,2 +1,1 @@
-# mynodeapi
-My Node API
+# API 2Devs
