@@ -1,0 +1,18 @@
+{
+    "apps": [{
+        "name": "API",
+        "script": "./src/index.js",
+        "env": {
+            "ENV": "development",
+            "PORT": 8081
+        }, 
+        "env_test": {
+            "ENV": "test",
+            "PORT": 8081
+        },
+        "env_production": {
+            "ENV": "production",
+            "PORT": 8081
+        }
+    }]
+}
