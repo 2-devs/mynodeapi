@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 mongoose.Promise = global.Promise
 mongoose.set('useFindAndModify', false)
 
-let mongoconnect = env.env === 'local' ? 'mongodb://localhost:27017/mynodeapi' : 'mongodb://localhost:27017/mynodeapi'
+let mongoconnect = env.env === 'local' ? 'mongodb://localhost:27017/2devs' : 'mongodb://localhost:27017/2devs'
 let mongo = mongoose.connect(mongoconnect, {
     useNewUrlParser: true,
     useCreateIndex: true,

@@ -3,12 +3,14 @@ const http = require('http')
 const bodyParser = require('body-parser')
 const logger = require('morgan')
 const env = require('./config/env')
+const responseMiddleware = require('./middlewares/response')
 
 const app = express()
 
 app.use(logger('dev'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
+app.use(responseMiddleware)
 
 require('./database')
 require('./app')(app)
