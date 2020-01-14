@@ -1,9 +1,8 @@
 const UserModel = require('../../../User/models/User');
-const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const authConfig = require('../../../../config/auth');
 const mailer = require('../../../../modules/mail');
 const bcrypt = require('bcryptjs');
+const { generateToken, generatePinCode } = require('../../../../utils/hash');
 
 class User {    
 	constructor (request, response) {
@@ -11,6 +10,21 @@ class User {
 		this.response = response;
 		this.fieldsNotCreated = ['_id', '__v', 'createdAt', 'updatedAt', 'loggedAt', 'passwordResetToken', 'passwordResetExpires', 'status', 'activationCode'];
 		this.fieldsNotUpdated = ['_id', '__v', 'email', 'createdAt', 'updatedAt', 'loggedAt', 'passwordResetToken', 'passwordResetExpires', 'activationCode'];
+	}
+
+	async login() {
+		const { email, password } = this.request.body;
+		const user = await UserModel.findOne({ email }).select('+password');
+		
+		if (!user) return this.response.error({ email: 'User not found' });
+		if (!user.status) return this.response.error('User account is not active');
+		if (!await bcrypt.compare(password, user.password)) return this.error({ password: 'Invalid password' });
+
+		user.password = undefined;
+		await UserModel.updateOne({ _id: user._id }, { $set: { loggedAt: new Date() } });
+
+		const data = { token: generateToken({ _id: user._id, email: user.email }) };
+		return this.response.success({ data });
 	}
 
 	async register () {
@@ -154,8 +168,5 @@ class User {
 		}
 	}
 }
-
-const generateToken = (params) => jwt.sign({ params }, authConfig.secret, { expiresIn: 86400 });
-const generatePinCode = () => parseInt((Math.random() * 99999999999).toFixed().padStart(4, 1).slice(0, 4));
 
 module.exports = User;

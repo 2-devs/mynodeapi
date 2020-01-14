@@ -2,6 +2,8 @@ const { Router } = require('express');
 const router = Router();
 const AuthController = require('./controllers/Auth');
 
+router.post('/', async (req, res) => (new AuthController(req, res)).login());
+
 router.post('/register', async (req, res) => (new AuthController(req, res)).register());
 
 router.post('/active', async (req, res) => (new AuthController(req, res)).activeAccount());
