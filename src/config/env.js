@@ -4,6 +4,6 @@ module.exports = {
 	email_from: 'orlandokauan.barros@gmail.com'
 };
 
-if (process.env.ENV === 'local') {
+if (process.env.ENV === 'development') {
 	process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 }

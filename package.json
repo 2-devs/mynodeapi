@@ -4,7 +4,7 @@
   "description": "API 2Devs",
   "main": "index.js",
   "scripts": {
-    "local": "ENV=local ./node_modules/nodemon/bin/nodemon.js src/index.js",
+    "start:development": "ENV=development ./node_modules/nodemon/bin/nodemon.js src/index.js",
     "eslint": "node_modules/.bin/eslint src"
   },
   "repository": {
