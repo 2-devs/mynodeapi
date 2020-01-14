@@ -1,4 +1,5 @@
 const express = require('express');
+const favicon = require('express-favicon');
 const http = require('http');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
@@ -11,6 +12,9 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(responseMiddleware);
+
+app.use(favicon('./public/img/favicon.png'));
+app.get('/', (_request, response) => response.json({ status: true }));
 
 require('./database');
 require('./app')(app);
