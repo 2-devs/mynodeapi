@@ -1,10 +1,11 @@
 {
-  "name": "mynodeapi",
+  "name": "api",
   "version": "1.0.0",
-  "description": "My Node API",
+  "description": "API 2Devs",
   "main": "index.js",
   "scripts": {
-    "local": "ENV=local ./node_modules/nodemon/bin/nodemon.js src/index.js"
+    "local": "ENV=local ./node_modules/nodemon/bin/nodemon.js src/index.js",
+    "eslint": "node_modules/.bin/eslint src"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
     "path": "^0.12.7"
   },
   "devDependencies": {
+    "eslint": "^6.8.0",
     "nodemon": "^2.0.2"
   }
 }

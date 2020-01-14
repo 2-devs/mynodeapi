@@ -1,23 +1,21 @@
-const express = require('express')
-const http = require('http')
-const bodyParser = require('body-parser')
-const logger = require('morgan')
-const env = require('./config/env')
-const responseMiddleware = require('./middlewares/response')
+const express = require('express');
+const http = require('http');
+const bodyParser = require('body-parser');
+const logger = require('morgan');
+const env = require('./config/env');
+const responseMiddleware = require('./middlewares/response');
 
-const app = express()
+const app = express();
 
-app.use(logger('dev'))
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(responseMiddleware)
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(responseMiddleware);
 
-require('./database')
-require('./app')(app)
+require('./database');
+require('./app')(app);
 
-const server = http.createServer(app)
+const server = http.createServer(app);
 server.listen(env.port, () => {
-    console.log('\x1b[32m%s\x1b[0m', '[ Ok ]', `Env: ${env.env}, port: ${env.port}`)
-})
-// app.listen(3000)
-
+	console.log('\x1b[32m%s\x1b[0m', '[ Ok ]', `Env: ${env.env}, port: ${env.port}`);
+});
