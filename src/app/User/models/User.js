@@ -12,6 +12,17 @@ const UserSchema = new mongoose.Schema({
 		unique: true,
 		lowercase: true,
 	},
+	location: {
+		type: {
+			type: String,
+			enum: ['Point'],
+			required: true
+		},
+		coordinates: {
+			type: [Number],
+			required: true,
+		}
+	},
 	password: {
 		type: String,
 		required: true,
@@ -54,10 +65,11 @@ UserSchema.pre('save', async function (next) {
 		const hash = await bcrypt.hash(this.password, 10);
 		this.password = hash;
 	}
-	if (this.phone)
-		this.phone = this.phone.replace(/\D/g, '');
+	if (this.phone) this.phone = this.phone.replace(/\D/g, '');
 	this.updatedAt = new Date();
 	next();
 });
+
+UserSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('User', UserSchema);

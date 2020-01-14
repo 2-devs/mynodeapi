@@ -1,66 +1,60 @@
 const UserModel = require('../../models/User');
 
-let req = {};
-let res = {};
-
 class User {    
-	constructor (_req, _res) {
-		req = _req;
-		res = _res;
+	constructor (request, response) {
+		this.request = request;
+		this.response = response;
 		this.fieldsNotCreated = ['_id', '__v', 'createdAt', 'updatedAt', 'loggedAt', 'passwordResetToken', 'passwordResetExpires', 'status', 'activationCode'];
 		this.fieldsNotUpdated = ['_id', '__v', 'email', 'createdAt', 'updatedAt', 'loggedAt', 'passwordResetToken', 'passwordResetExpires', 'activationCode'];
 	}
 
-	async getUser () {
+	async get () {
 		try {
-			const { _id } = req.user;
+			const { _id } = this.request.user;
 			const data = await UserModel.findOne({ _id });
-			if (!data)
-				return res.error('User not found');
-			if (!data.status)
-				return res.error('User account is not active');
-			return res.success(data);
+			if (!data) return this.response.error('User not found');
+			if (!data.status) return this.response.error('User account is not active');
+
+			return this.response.success(data);
 		} catch (err) {
 			console.log(err);
-			return res.error(err);
+			return this.response.error(err);
 		}
 	}
     
-	async updateUser () {
+	async update () {
 		try {
-			if (!Object.keys(req.body).length)
-				return res.error('No data received');
+			if (!Object.keys(this.request.body).length)
+				return this.response.error('No data received');
             
-			const { _id } = req.user;
+			const { _id } = this.request.user;
 			const user = await UserModel.findOne({ _id });
-			if (!user)
-				return res.error('User not found');
-			if (!user.status)
-				return res.error('User account is not active');
-			Object.keys(req.body).map(k => this.fieldsNotUpdated.indexOf(k) < 0 ? user[k] = req.body[k] : null);
+			if (!user) return this.response.error('User not found');
+			if (!user.status) return this.response.error('User account is not active');
+
+			Object.keys(this.request.body).map(k => this.fieldsNotUpdated.indexOf(k) < 0 ? user[k] = this.request.body[k] : null);
 			await user.save();
             
-			return res.success({ message: 'User data updated successfully' });
+			return this.response.success({ message: 'User data updated successfully' });
 		} catch (err) {
 			console.log(err);
-			return res.error(err);
+			return this.response.error(err);
 		}
 	}
     
-	async deleteUser () {
+	async delete () {
 		try {
-			const { _id } = req.user;
+			const { _id } = this.request.user;
 			const user = await UserModel.findOne({ _id });
-			if (!user)
-				return res.error('User not found');
-			if (!user.status)
-				return res.error('User account is not active');
+			if (!user) return this.response.error('User not found');
+			if (!user.status) return this.response.error('User account is not active');
+
 			await user.remove();
             
-			return res.success({ message: 'User account has been deleted successfully' });
+			return this.response.success({ message: 'User account has been deleted successfully' });
 		} catch (err) {
 			console.log(err);
-			return res.error(err);
+			return this.response.error(err);
 		}
 	}
 }

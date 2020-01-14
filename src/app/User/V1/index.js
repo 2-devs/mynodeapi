@@ -3,10 +3,10 @@ const router = Router();
 const auth = require('../../../middlewares/auth');
 const UserController = require('./controllers/User');
 
-router.get('/', auth, (req, res) => (new UserController(req, res)).getUser());
+router.get('/', auth, (req, res) => (new UserController(req, res)).get());
 
-router.put('/', auth, async (req, res) => (new UserController(req, res)).updateUser());
+router.put('/', auth, async (req, res) => (new UserController(req, res)).update());
 
-router.delete('/', auth, async (req, res) => (new UserController(req, res)).deleteUser());
+router.delete('/', auth, async (req, res) => (new UserController(req, res)).delete());
 
 module.exports = app => app.use('/user/V1', router);
