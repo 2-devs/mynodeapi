@@ -4,8 +4,7 @@
   "description": "My Node API",
   "main": "index.js",
   "scripts": {
-    "local": "ENV=local ./node_modules/nodemon/bin/nodemon.js src/index.js",
-    "production": "ENV=local ./node_modules/nodemon/bin/nodemon.js src/index.js"
+    "local": "ENV=local ./node_modules/nodemon/bin/nodemon.js src/index.js"
   },
   "repository": {
     "type": "git",
