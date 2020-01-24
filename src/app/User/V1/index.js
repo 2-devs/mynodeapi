@@ -9,4 +9,6 @@ router.put('/', auth, async (req, res) => (new UserController(req, res)).update(
 
 router.delete('/', auth, async (req, res) => (new UserController(req, res)).delete());
 
+router.get('/list', async (req, res) => (new UserController(req, res)).getList());
+
 module.exports = app => app.use('/user/V1', router);

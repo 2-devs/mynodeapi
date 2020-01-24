@@ -12,32 +12,48 @@ class User {
 		try {
 			const { _id } = this.request.user;
 			const data = await UserModel.findOne({ _id });
-			if (!data) return this.response.error('User not found');
-			if (!data.status) return this.response.error('User account is not active');
+
+			if (!data) throw 'User not found';
+			if (!data.status) throw 'User account is not active';
 
 			return this.response.success(data);
 		} catch (err) {
-			console.log(err);
+			console.error(err);
+			return this.response.error(err);
+		}
+	}
+
+	async getList () {
+		try {
+			let query = {};
+			const { createdAt } = this.request.query;
+			if (createdAt)
+				query.createdAt = { $gte: new Date(createdAt) };
+
+			const data = await UserModel.find(query).select('name email phone');
+			return this.response.success(data);
+		} catch (err) {
+			console.error(err);
 			return this.response.error(err);
 		}
 	}
     
 	async update () {
 		try {
-			if (!Object.keys(this.request.body).length)
-				return this.response.error('No data received');
+			if (!Object.keys(this.request.body).length) throw 'No data received';
             
 			const { _id } = this.request.user;
 			const user = await UserModel.findOne({ _id });
-			if (!user) return this.response.error('User not found');
-			if (!user.status) return this.response.error('User account is not active');
+
+			if (!user) throw 'User not found';
+			if (!user.status) throw 'User account is not active';
 
 			Object.keys(this.request.body).map(k => this.fieldsNotUpdated.indexOf(k) < 0 ? user[k] = this.request.body[k] : null);
 			await user.save();
             
 			return this.response.success({ message: 'User data updated successfully' });
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			return this.response.error(err);
 		}
 	}
@@ -46,14 +62,14 @@ class User {
 		try {
 			const { _id } = this.request.user;
 			const user = await UserModel.findOne({ _id });
-			if (!user) return this.response.error('User not found');
-			if (!user.status) return this.response.error('User account is not active');
+			if (!user) throw 'User not found';
+			if (!user.status) throw 'User account is not active';
 
 			await user.remove();
             
 			return this.response.success({ message: 'User account has been deleted successfully' });
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			return this.response.error(err);
 		}
 	}

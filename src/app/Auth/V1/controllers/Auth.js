@@ -13,43 +13,57 @@ class User {
 	}
 
 	async login() {
-		const { email, password } = this.request.body;
-		const user = await UserModel.findOne({ email }).select('+password');
-		
-		if (!user) return this.response.error({ email: 'User not found' });
-		if (!user.status) return this.response.error('User account is not active');
-		if (!await bcrypt.compare(password, user.password)) return this.error({ password: 'Invalid password' });
+		try {
+			const { email, password } = this.request.body;
+			const user = await UserModel.findOne({ email }).select('+password');
 
-		user.password = undefined;
-		await UserModel.updateOne({ _id: user._id }, { $set: { loggedAt: new Date() } });
+			if (!user) throw { email: 'User not found' };
+			if (!user.status) throw 'User account is not active';
+			if (!await bcrypt.compare(password, user.password)) throw { password: 'Invalid password' };
 
-		const data = { token: generateToken({ _id: user._id, email: user.email }) };
-		return this.response.success({ data });
+			user.password = undefined;
+			await UserModel.updateOne({ _id: user._id }, { $set: { loggedAt: new Date() } });
+
+			const data = { token: generateToken({ _id: user._id, email: user.email }) };
+			return this.response.success(data);
+		} catch (err) {
+			console.error(err);
+			return this.response.error(err);
+		}
 	}
 
 	async register () {
 		try {
-			const { name, phone, email, password } = this.request.body;
-			if (!name || !phone || !email || !password) return this.response.error('\'email\', \'password\', \'name\' and \'phone\' are required');
-			if (await UserModel.findOne({ email })) return this.response.error('User already exist');
-			
-			const user = new UserModel({});
-			Object.keys(this.request.body).map(k => this.fieldsNotCreated.indexOf(k) < 0 ? user[k] = this.request.body[k] : null);
-            
+			const { name, email, password, accountType } = this.request.body;
+
+			if (!name || !email || !password || !accountType) throw '\'email\', \'password\', \'name\' and \'accountType\' are required';
+			if (await UserModel.findOne({ email })) throw 'User already exist';
+
+			const user = new UserModel({
+				name,
+				email,
+				password,
+				accountType
+			});
+
+			/*
 			const pinCode = generatePinCode();
 			user.activationCode = pinCode;
-            
+
 			await mailer.sendMail({
 				to: this.request.body.email,
 				from: process.env.email_from,
 				template: 'auth/active-account',
 				context: { pinCode }
 			});
+			*/
+
+			user.status = true;
 			await user.save();
-            
+
 			return this.response.success({ message: 'User created' });
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			return this.response.error(err);
 		}
 	}
@@ -57,12 +71,13 @@ class User {
 	async activeAccount () {
 		try {
 			const { email, activationCode } = this.request.body;
-			if (!email || !activationCode) return this.response.error('\'email\' and \'activationCode\' are required');
+			if (!email || !activationCode) throw '\'email\' and \'activationCode\' are required';
             
 			const user = await UserModel.findOne({ email }).select('+activationCode');
-			if (!user) return this.response.error('User not found');
-			if (!user.activationCode) return this.response.error('Activation code is no longer valid');
-			if (user.activationCode !== activationCode) return this.response.error('Activation code is invalid');
+
+			if (!user) throw 'User not found';
+			if (!user.activationCode) throw 'Activation code is no longer valid';
+			if (user.activationCode !== activationCode) throw 'Activation code is invalid';
             
 			user.status = true;
 			user.activationCode = undefined;
@@ -77,11 +92,12 @@ class User {
 	async resendActivationCode () {
 		try {
 			const { email } = this.request.body;
-			if (!email) return this.response.error('\'email\' is required');
+			if (!email) throw '\'email\' is required';
             
 			const user = await UserModel.findOne({ email });
-			if (!user) return this.response.error('User not found');
-			if (user.status) return this.response.error('User account is already active');
+
+			if (!user) throw 'User not found';
+			if (user.status) throw 'User account is already active';
 
 			const pinCode = generatePinCode();
 			user.activationCode = pinCode;
@@ -96,7 +112,7 @@ class User {
             
 			return this.response.success({ message: 'Activation code sent successfully' });
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			return this.response.error(err);
 		}
 	}
@@ -104,9 +120,10 @@ class User {
 	async authenticate () {
 		const { email, password } = this.request.body;
 		const user = await UserModel.findOne({ email }).select('+password');
-		if (!user) return this.response.error({ email: 'User not found' });
-		if (!user.status) return this.response.error('User account is not active');
-		if (!await bcrypt.compare(password, user.password)) return this.response.error({ password: 'Invalid password' });
+
+		if (!user) throw { email: 'User not found' };
+		if (!user.status) throw 'User account is not active';
+		if (!await bcrypt.compare(password, user.password)) throw { password: 'Invalid password' };
         
 		user.password = undefined;
 		await UserModel.updateOne({ _id: user._id }, { $set: { loggedAt: new Date() } });
@@ -118,10 +135,11 @@ class User {
 	async forgotPassword () {
 		try {
 			const { email } = this.request.body;
-			if (!email) return this.response.error({ email: '\'email\' is required' });
+			if (!email) throw { email: '\'email\' is required' };
             
 			const user = await UserModel.findOne({ email });
-			if (!user) return this.response.error('User not found');
+
+			if (!user) throw 'User not found';
             
 			const token = crypto.randomBytes(20).toString('hex');
 			const expires = new Date();
@@ -140,7 +158,7 @@ class User {
             
 			return this.response.success({ message: 'The code to recover your password was successfully sent to your email' });
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			return this.response.error(err);
 		}
 	}
@@ -148,13 +166,13 @@ class User {
 	async resetPassword () {
 		try {
 			const { email, token, password } = this.request.body;
-			if (!email || !token || !password)
-				return this.response.error('\'email\', \'token\' and \'password\' are required');
+			if (!email || !token || !password) throw '\'email\', \'token\' and \'password\' are required';
             
 			const user = await UserModel.findOne({ email }).select('+passwordResetToken +passwordResetExpires');
-			if (!user) return this.response.error('User not found');
-			if (user.passwordResetToken !== token) return this.response.error('Token is invalid');
-			if (new Date() > user.passwordResetExpires) return this.response.error('Token is expired, generate a new one');
+
+			if (!user) throw 'User not found';
+			if (user.passwordResetToken !== token) throw 'Token is invalid';
+			if (new Date() > user.passwordResetExpires) throw 'Token is expired, generate a new one';
             
 			user.password = password;
 			user.passwordResetToken = undefined;
@@ -163,7 +181,7 @@ class User {
             
 			return this.response.success({ message: 'Your password has been changed successfully' });
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			return this.response.error(err);
 		}
 	}

@@ -11,8 +11,8 @@ let mongo = mongoose.connect(mongoconnect, {
 }).then(() => {
 	console.log('\x1b[32m%s\x1b[0m', '[ Ok ]', `mongodb has been connected: ${env.env}`);
 }).catch(err => {
-	console.log('\x1b[31m%s\x1b[0m', '[ Er ]', `mongodb was not connected: ${env.env}`);
-	console.log(err);
+	console.error('\x1b[31m%s\x1b[0m', '[ Er ]', `mongodb was not connected: ${env.env}`);
+	console.error(err);
 });
 
 module.exports = mongo;

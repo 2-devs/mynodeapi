@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const favicon = require('express-favicon');
 const http = require('http');
 const bodyParser = require('body-parser');
@@ -8,6 +9,7 @@ const responseMiddleware = require('./middlewares/response');
 
 const app = express();
 
+app.use(cors());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
